@@ -13,6 +13,9 @@ export function PedidosPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [expandedPedidoId, setExpandedPedidoId] = useState(null)
+  const [loadingItensPedidoId, setLoadingItensPedidoId] = useState(null)
+  const [itensPorPedido, setItensPorPedido] = useState({})
 
   const [idFuncionario, setIdFuncionario] = useState('')
   const [itemForm, setItemForm] = useState({
@@ -193,6 +196,39 @@ export function PedidosPage() {
     }
   }
 
+  async function fetchItensPedido(idNotaFiscal) {
+    try {
+      const response = await api.get(`/pedidos/${idNotaFiscal}/itens`)
+      return response.data
+    } catch {
+      const response = await api.get('/itens-pedido/')
+      return response.data.filter((item) => item.id_nota_fiscal === idNotaFiscal)
+    }
+  }
+
+  async function toggleDetalhesPedido(idNotaFiscal) {
+    if (expandedPedidoId === idNotaFiscal) {
+      setExpandedPedidoId(null)
+      return
+    }
+
+    setExpandedPedidoId(idNotaFiscal)
+
+    if (itensPorPedido[idNotaFiscal]) {
+      return
+    }
+
+    setLoadingItensPedidoId(idNotaFiscal)
+    try {
+      const itens = await fetchItensPedido(idNotaFiscal)
+      setItensPorPedido((prev) => ({ ...prev, [idNotaFiscal]: itens }))
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Erro ao carregar itens do pedido.')
+    } finally {
+      setLoadingItensPedidoId(null)
+    }
+  }
+
   const funcionariosDisponiveis = funcionarios.length > 0
 
   return (
@@ -364,25 +400,79 @@ export function PedidosPage() {
                 </td>
               </tr>
             ) : (
-              pedidos.map((item) => (
-                <tr key={item.id_nota_fiscal} className="border-t border-slate-200">
-                  <td className="px-3 py-2">{item.id_nota_fiscal}</td>
-                  <td className="px-3 py-2">
-                    {funcionariosMap.get(item.id_funcionario) || `ID ${item.id_funcionario}`}
-                  </td>
-                  <td className="px-3 py-2">{BRL.format(Number(item.valor_total))}</td>
-                  <td className="px-3 py-2">{new Date(item.data_hora).toLocaleString('pt-BR')}</td>
-                  <td className="px-3 py-2">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(item.id_nota_fiscal)}
-                      className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
+              pedidos.map((pedido) => {
+                const isExpanded = expandedPedidoId === pedido.id_nota_fiscal
+                const loadingItens = loadingItensPedidoId === pedido.id_nota_fiscal
+                const itens = itensPorPedido[pedido.id_nota_fiscal] || []
+
+                return (
+                  <>
+                    <tr key={`pedido-${pedido.id_nota_fiscal}`} className="border-t border-slate-200">
+                      <td className="px-3 py-2">{pedido.id_nota_fiscal}</td>
+                      <td className="px-3 py-2">
+                        {funcionariosMap.get(pedido.id_funcionario) || `ID ${pedido.id_funcionario}`}
+                      </td>
+                      <td className="px-3 py-2">{BRL.format(Number(pedido.valor_total))}</td>
+                      <td className="px-3 py-2">{new Date(pedido.data_hora).toLocaleString('pt-BR')}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleDetalhesPedido(pedido.id_nota_fiscal)}
+                            className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium hover:bg-slate-100"
+                          >
+                            {isExpanded ? 'Ocultar itens' : 'Ver itens'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(pedido.id_nota_fiscal)}
+                            className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {isExpanded ? (
+                      <tr key={`detalhes-${pedido.id_nota_fiscal}`} className="border-t border-slate-100 bg-slate-50">
+                        <td colSpan={5} className="px-3 py-3">
+                          {loadingItens ? (
+                            <p className="text-slate-500">Carregando itens...</p>
+                          ) : itens.length === 0 ? (
+                            <p className="text-slate-500">Nenhum item encontrado para este pedido.</p>
+                          ) : (
+                            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                              <table className="min-w-full text-left text-xs">
+                                <thead className="bg-slate-100 text-slate-700">
+                                  <tr>
+                                    <th className="px-2 py-2">ID Item</th>
+                                    <th className="px-2 py-2">Produto</th>
+                                    <th className="px-2 py-2">Quantidade</th>
+                                    <th className="px-2 py-2">Subtotal</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {itens.map((item) => (
+                                    <tr key={item.id_item_pedido} className="border-t border-slate-100">
+                                      <td className="px-2 py-2">{item.id_item_pedido}</td>
+                                      <td className="px-2 py-2">
+                                        {produtosMap.get(item.id_produto)?.nome || `ID ${item.id_produto}`}
+                                      </td>
+                                      <td className="px-2 py-2">{item.quantidade}</td>
+                                      <td className="px-2 py-2">{BRL.format(Number(item.subtotal))}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </>
+                )
+              })
             )}
           </tbody>
         </table>
