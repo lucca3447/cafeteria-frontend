@@ -4,7 +4,9 @@ import { AppLayout } from './components/AppLayout.jsx'
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx'
 import { CategoriasPage } from './pages/CategoriasPage.jsx'
 import { DashboardPage } from './pages/DashboardPage.jsx'
+import { ItensPedidoPage } from './pages/ItensPedidoPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
+import { PedidosPage } from './pages/PedidosPage.jsx'
 import { ProdutosPage } from './pages/ProdutosPage.jsx'
 
 function LoginRoute() {
@@ -32,6 +34,8 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="/produtos" element={<ProdutosPage />} />
+          <Route path="/pedidos" element={<PedidosPage />} />
+          <Route path="/itens-pedido" element={<ItensPedidoPage />} />
         </Route>
       </Route>
 
