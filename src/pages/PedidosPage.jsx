@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../context/AuthContext.jsx'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { api } from '../services/api'
 
 const BRL = new Intl.NumberFormat('pt-BR', {
@@ -8,18 +7,27 @@ const BRL = new Intl.NumberFormat('pt-BR', {
 })
 
 export function PedidosPage() {
-  const { hasAnyRole } = useAuth()
-  const canEdit = hasAnyRole(['admin', 'gerente', 'funcionario'])
   const [pedidos, setPedidos] = useState([])
+  const [produtos, setProdutos] = useState([])
   const [funcionarios, setFuncionarios] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [editId, setEditId] = useState(null)
-  const [form, setForm] = useState({
-    id_funcionario: '',
-    valor_total: '',
+
+  const [idFuncionario, setIdFuncionario] = useState('')
+  const [itemForm, setItemForm] = useState({
+    id_produto: '',
+    quantidade: '1',
   })
+  const [itensRascunho, setItensRascunho] = useState([])
+
+  const produtosMap = useMemo(() => {
+    const map = new Map()
+    produtos.forEach((produto) => {
+      map.set(produto.id_produto, produto)
+    })
+    return map
+  }, [produtos])
 
   const funcionariosMap = useMemo(() => {
     const map = new Map()
@@ -29,13 +37,23 @@ export function PedidosPage() {
     return map
   }, [funcionarios])
 
+  const totalPedido = useMemo(() => {
+    const total = itensRascunho.reduce((acc, item) => acc + Number(item.subtotal), 0)
+    return Number(total.toFixed(2))
+  }, [itensRascunho])
+
   async function loadData() {
     setLoading(true)
     setError('')
 
     try {
-      const pedidosResponse = await api.get('/pedidos/')
+      const [pedidosResponse, produtosResponse] = await Promise.all([
+        api.get('/pedidos/'),
+        api.get('/produtos/'),
+      ])
+
       setPedidos(pedidosResponse.data)
+      setProdutos(produtosResponse.data)
 
       try {
         const funcionariosResponse = await api.get('/funcionarios/')
@@ -58,44 +76,107 @@ export function PedidosPage() {
     return () => clearTimeout(timer)
   }, [])
 
-  async function handleSubmit(event) {
+  function adicionarItemRascunho(event) {
+    event.preventDefault()
+
+    const idProduto = Number(itemForm.id_produto)
+    const quantidade = Number(itemForm.quantidade)
+
+    const produto = produtosMap.get(idProduto)
+    if (!produto) {
+      setError('Selecione um produto valido.')
+      return
+    }
+
+    if (!Number.isFinite(quantidade) || quantidade <= 0) {
+      setError('Quantidade deve ser maior que zero.')
+      return
+    }
+
+    const precoUnitario = Number(produto.preco)
+    const subtotal = Number((precoUnitario * quantidade).toFixed(2))
+
+    setItensRascunho((prev) => [
+      ...prev,
+      {
+        uid: `${Date.now()}-${Math.random()}`,
+        id_produto: idProduto,
+        nome_produto: produto.nome,
+        quantidade,
+        subtotal,
+      },
+    ])
+
+    setItemForm({ id_produto: '', quantidade: '1' })
+    setError('')
+  }
+
+  function removerItemRascunho(uid) {
+    setItensRascunho((prev) => prev.filter((item) => item.uid !== uid))
+  }
+
+  function limparFormularioPedido() {
+    setIdFuncionario('')
+    setItemForm({ id_produto: '', quantidade: '1' })
+    setItensRascunho([])
+  }
+
+  async function criarPedidoCompleto(event) {
     event.preventDefault()
     setSaving(true)
     setError('')
 
+    if (!idFuncionario && idFuncionario !== '0') {
+      setError('Informe o funcionario do pedido.')
+      setSaving(false)
+      return
+    }
+
+    if (itensRascunho.length === 0) {
+      setError('Adicione pelo menos 1 item ao pedido.')
+      setSaving(false)
+      return
+    }
+
+    let pedidoCriado = null
+
     try {
-      const payload = {
-        id_funcionario: Number(form.id_funcionario),
-        valor_total: Number(form.valor_total),
+      const payloadPedido = {
+        id_funcionario: Number(idFuncionario),
+        valor_total: totalPedido,
       }
 
-      if (editId) {
-        await api.put(`/pedidos/${editId}`, payload)
-      } else {
-        await api.post('/pedidos/', payload)
-      }
+      const pedidoResponse = await api.post('/pedidos/', payloadPedido)
+      pedidoCriado = pedidoResponse.data
 
-      setEditId(null)
-      setForm({ id_funcionario: '', valor_total: '' })
+      const idNotaFiscal = pedidoCriado.id_nota_fiscal
+
+      await Promise.all(
+        itensRascunho.map((item) =>
+          api.post('/itens-pedido/', {
+            quantidade: Number(item.quantidade),
+            subtotal: Number(item.subtotal),
+            id_produto: Number(item.id_produto),
+            id_nota_fiscal: Number(idNotaFiscal),
+          }),
+        ),
+      )
+
+      limparFormularioPedido()
       await loadData()
     } catch (requestError) {
-      setError(requestError.response?.data?.detail || 'Erro ao salvar pedido.')
+      if (pedidoCriado?.id_nota_fiscal) {
+        try {
+          await api.delete(`/pedidos/${pedidoCriado.id_nota_fiscal}`)
+        } catch {
+          // Ignora erro de rollback e mantém o erro original para o usuário.
+        }
+      }
+
+      setError(requestError.response?.data?.detail || 'Erro ao criar pedido completo.')
     } finally {
       setSaving(false)
     }
-  }
-
-  function startEdit(item) {
-    setEditId(item.id_nota_fiscal)
-    setForm({
-      id_funcionario: String(item.id_funcionario),
-      valor_total: String(item.valor_total),
-    })
-  }
-
-  function cancelEdit() {
-    setEditId(null)
-    setForm({ id_funcionario: '', valor_total: '' })
   }
 
   async function handleDelete(idNotaFiscal) {
@@ -119,75 +200,138 @@ export function PedidosPage() {
       <div>
         <h1 className="text-2xl font-bold">Pedidos</h1>
         <p className="text-sm text-slate-500">
-          Todos os perfis autenticados podem criar, editar e excluir pedidos.
+          A criacao do pedido e feita em uma unica tela, com os itens vinculados ao pedido.
         </p>
       </div>
 
-      {canEdit ? (
-        <form
-          onSubmit={handleSubmit}
-          className="grid gap-3 md:grid-cols-[220px_220px_auto_auto]"
-        >
+      <form onSubmit={criarPedidoCompleto} className="space-y-4 rounded-xl border border-slate-200 p-4">
+        <h2 className="text-lg font-semibold">Novo Pedido Completo</h2>
+
+        <div className="grid gap-3 md:grid-cols-[260px_1fr]">
           {funcionariosDisponiveis ? (
             <select
-              value={form.id_funcionario}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, id_funcionario: event.target.value }))
-              }
+              value={idFuncionario}
+              onChange={(event) => setIdFuncionario(event.target.value)}
               required
               className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
             >
               <option value="">Funcionario</option>
               {funcionarios.map((funcionario) => (
                 <option key={funcionario.id_funcionario} value={funcionario.id_funcionario}>
-                  {funcionario.nome}
+                  {funcionario.nome} (ID {funcionario.id_funcionario})
                 </option>
               ))}
             </select>
           ) : (
             <input
               type="number"
-              min="1"
-              value={form.id_funcionario}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, id_funcionario: event.target.value }))
-              }
+              min="0"
+              value={idFuncionario}
+              onChange={(event) => setIdFuncionario(event.target.value)}
               placeholder="ID do funcionario"
               required
               className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
             />
           )}
 
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            <p className="text-xs text-slate-500">Valor total calculado</p>
+            <p className="text-lg font-semibold">{BRL.format(totalPedido)}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-[1fr_140px_auto]">
+          <select
+            value={itemForm.id_produto}
+            onChange={(event) => setItemForm((prev) => ({ ...prev, id_produto: event.target.value }))}
+            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
+            required
+          >
+            <option value="">Produto</option>
+            {produtos.map((produto) => (
+              <option key={produto.id_produto} value={produto.id_produto}>
+                {produto.nome} - {BRL.format(Number(produto.preco))}
+              </option>
+            ))}
+          </select>
+
           <input
             type="number"
-            step="0.01"
-            min="0"
-            value={form.valor_total}
-            onChange={(event) => setForm((prev) => ({ ...prev, valor_total: event.target.value }))}
-            placeholder="Valor total"
+            min="1"
+            step="1"
+            value={itemForm.quantidade}
+            onChange={(event) => setItemForm((prev) => ({ ...prev, quantidade: event.target.value }))}
+            placeholder="Quantidade"
             required
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
           />
 
           <button
+            type="button"
+            onClick={adicionarItemRascunho}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+          >
+            Adicionar Item
+          </button>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-100 text-slate-700">
+              <tr>
+                <th className="px-3 py-2">Produto</th>
+                <th className="px-3 py-2">Quantidade</th>
+                <th className="px-3 py-2">Subtotal</th>
+                <th className="px-3 py-2">Acoes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {itensRascunho.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-3 text-slate-500" colSpan={4}>
+                    Nenhum item adicionado.
+                  </td>
+                </tr>
+              ) : (
+                itensRascunho.map((item) => (
+                  <tr key={item.uid} className="border-t border-slate-200">
+                    <td className="px-3 py-2">{item.nome_produto}</td>
+                    <td className="px-3 py-2">{item.quantidade}</td>
+                    <td className="px-3 py-2">{BRL.format(Number(item.subtotal))}</td>
+                    <td className="px-3 py-2">
+                      <button
+                        type="button"
+                        onClick={() => removerItemRascunho(item.uid)}
+                        className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                      >
+                        Remover
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
             type="submit"
             disabled={saving}
             className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-70"
           >
-            {editId ? 'Atualizar' : 'Criar'}
+            {saving ? 'Salvando...' : 'Criar Pedido Completo'}
           </button>
 
-          {editId ? (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100"
-            >
-              Cancelar
-            </button>
-          ) : null}
-        </form>
-      ) : null}
+          <button
+            type="button"
+            onClick={limparFormularioPedido}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+          >
+            Limpar
+          </button>
+        </div>
+      </form>
 
       {error ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -227,26 +371,15 @@ export function PedidosPage() {
                     {funcionariosMap.get(item.id_funcionario) || `ID ${item.id_funcionario}`}
                   </td>
                   <td className="px-3 py-2">{BRL.format(Number(item.valor_total))}</td>
+                  <td className="px-3 py-2">{new Date(item.data_hora).toLocaleString('pt-BR')}</td>
                   <td className="px-3 py-2">
-                    {new Date(item.data_hora).toLocaleString('pt-BR')}
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEdit(item)}
-                        className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium hover:bg-slate-100"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(item.id_nota_fiscal)}
-                        className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
-                      >
-                        Excluir
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item.id_nota_fiscal)}
+                      className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                    >
+                      Excluir
+                    </button>
                   </td>
                 </tr>
               ))
