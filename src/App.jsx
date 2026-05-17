@@ -1,10 +1,9 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+﻿import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/AuthContext.jsx'
 import { AppLayout } from './components/AppLayout.jsx'
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx'
 import { CategoriasPage } from './pages/CategoriasPage.jsx'
 import { DashboardPage } from './pages/DashboardPage.jsx'
-import { ItensPedidoPage } from './pages/ItensPedidoPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { PedidosPage } from './pages/PedidosPage.jsx'
 import { ProdutosPage } from './pages/ProdutosPage.jsx'
@@ -35,7 +34,6 @@ export default function App() {
           <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="/produtos" element={<ProdutosPage />} />
           <Route path="/pedidos" element={<PedidosPage />} />
-          <Route path="/itens-pedido" element={<ItensPedidoPage />} />
         </Route>
       </Route>
 

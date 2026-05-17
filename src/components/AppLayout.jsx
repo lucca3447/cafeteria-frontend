@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+﻿import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function navClassName({ isActive }) {
@@ -37,9 +37,6 @@ export function AppLayout() {
             </NavLink>
             <NavLink to="/pedidos" className={navClassName}>
               Pedidos
-            </NavLink>
-            <NavLink to="/itens-pedido" className={navClassName}>
-              Itens Pedido
             </NavLink>
           </nav>
 
