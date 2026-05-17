@@ -4,9 +4,14 @@ import { AppLayout } from './components/AppLayout.jsx'
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx'
 import { CategoriasPage } from './pages/CategoriasPage.jsx'
 import { DashboardPage } from './pages/DashboardPage.jsx'
+import { EstoquePage } from './pages/EstoquePage.jsx'
+import { FornecedorProdutoPage } from './pages/FornecedorProdutoPage.jsx'
+import { FornecedoresPage } from './pages/FornecedoresPage.jsx'
+import { FuncionariosPage } from './pages/FuncionariosPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
 import { PedidosPage } from './pages/PedidosPage.jsx'
 import { ProdutosPage } from './pages/ProdutosPage.jsx'
+import { UsuariosPage } from './pages/UsuariosPage.jsx'
 
 function LoginRoute() {
   const { isAuthenticated, loading } = useAuth()
@@ -34,6 +39,14 @@ export default function App() {
           <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="/produtos" element={<ProdutosPage />} />
           <Route path="/pedidos" element={<PedidosPage />} />
+
+          <Route element={<ProtectedRoute roles={['admin', 'gerente']} />}>
+            <Route path="/usuarios" element={<UsuariosPage />} />
+            <Route path="/funcionarios" element={<FuncionariosPage />} />
+            <Route path="/fornecedores" element={<FornecedoresPage />} />
+            <Route path="/estoque" element={<EstoquePage />} />
+            <Route path="/fornecedor-produto" element={<FornecedorProdutoPage />} />
+          </Route>
         </Route>
       </Route>
 

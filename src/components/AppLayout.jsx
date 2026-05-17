@@ -8,13 +8,15 @@ function navClassName({ isActive }) {
 }
 
 export function AppLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, hasAnyRole } = useAuth()
   const navigate = useNavigate()
 
   async function handleLogout() {
     await logout()
     navigate('/login', { replace: true })
   }
+
+  const canManage = hasAnyRole(['admin', 'gerente'])
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -25,7 +27,7 @@ export function AppLayout() {
             <p className="text-xs text-slate-500">Painel interno</p>
           </div>
 
-          <nav className="flex items-center gap-1">
+          <nav className="flex flex-wrap items-center gap-1">
             <NavLink to="/dashboard" className={navClassName}>
               Dashboard
             </NavLink>
@@ -38,6 +40,26 @@ export function AppLayout() {
             <NavLink to="/pedidos" className={navClassName}>
               Pedidos
             </NavLink>
+
+            {canManage ? (
+              <>
+                <NavLink to="/usuarios" className={navClassName}>
+                  Usuarios
+                </NavLink>
+                <NavLink to="/funcionarios" className={navClassName}>
+                  Funcionarios
+                </NavLink>
+                <NavLink to="/fornecedores" className={navClassName}>
+                  Fornecedores
+                </NavLink>
+                <NavLink to="/estoque" className={navClassName}>
+                  Estoque
+                </NavLink>
+                <NavLink to="/fornecedor-produto" className={navClassName}>
+                  Fornecedor-Produto
+                </NavLink>
+              </>
+            ) : null}
           </nav>
 
           <div className="flex items-center gap-3">
