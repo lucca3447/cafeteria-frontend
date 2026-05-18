@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../services/api'
 
 const BRL = new Intl.NumberFormat('pt-BR', {
@@ -281,7 +281,6 @@ export function PedidosPage() {
             value={itemForm.id_produto}
             onChange={(event) => setItemForm((prev) => ({ ...prev, id_produto: event.target.value }))}
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
-            required
           >
             <option value="">Produto</option>
             {produtos.map((produto) => (
@@ -298,7 +297,6 @@ export function PedidosPage() {
             value={itemForm.quantidade}
             onChange={(event) => setItemForm((prev) => ({ ...prev, quantidade: event.target.value }))}
             placeholder="Quantidade"
-            required
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
           />
 
