@@ -58,6 +58,9 @@ export function AppLayout() {
             <NavLink to="/dashboard" className={navClassName}>
               {({ isActive }) => <><LayoutDashboard className={iconClassName({ isActive })} /> Dashboard</>}
             </NavLink>
+            <NavLink to="/cozinha" className={navClassName}>
+              {({ isActive }) => <><Coffee className={iconClassName({ isActive })} /> Cozinha</>}
+            </NavLink>
             <NavLink to="/categorias" className={navClassName}>
               {({ isActive }) => <><Tags className={iconClassName({ isActive })} /> Categorias</>}
             </NavLink>
