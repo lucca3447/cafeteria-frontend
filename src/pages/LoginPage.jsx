@@ -30,7 +30,7 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Left Side - Brand & Gradient */}
-      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 p-12 text-white lg:flex relative overflow-hidden">
+      <div className="hidden w-1/2 flex-col justify-between bg-linear-to-br from-brand-900 via-brand-800 to-brand-950 p-12 text-white lg:flex relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-600/20 blur-3xl"></div>
         <div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl"></div>
@@ -39,7 +39,7 @@ export function LoginPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
             <Coffee className="h-7 w-7 text-white" />
           </div>
-          <span className="text-2xl font-bold tracking-tight">Delícias da Cidade</span>
+          <span className="text-2xl font-bold tracking-tight">Cafeteria Maneger</span>
         </div>
 
         <div className="relative z-10 max-w-md">
@@ -52,7 +52,7 @@ export function LoginPage() {
         </div>
 
         <div className="relative z-10 text-sm text-brand-200">
-          &copy; {new Date().getFullYear()} Delícias da Cidade. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} Cafeteria Menager. Todos os direitos reservados.
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export function LoginPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, login: event.target.value }))
                   }
-                  className="pl-11"
+                  
                 />
               </div>
             </div>
@@ -115,7 +115,7 @@ export function LoginPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, senha: event.target.value }))
                   }
-                  className="pl-11"
+                  
                 />
               </div>
             </div>
