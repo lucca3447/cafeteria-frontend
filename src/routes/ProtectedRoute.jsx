@@ -14,7 +14,13 @@ export function ProtectedRoute({ roles = [] }) {
   }
 
   if (roles.length > 0 && user && !hasAnyRole(roles)) {
-    return <Navigate to="/dashboard" replace />
+    return (
+      <Navigate
+        to="/nao-autorizado"
+        state={{ from: location, requiredRoles: roles }}
+        replace
+      />
+    )
   }
 
   return <Outlet />
