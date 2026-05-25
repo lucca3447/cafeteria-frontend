@@ -13,8 +13,6 @@ export function FuncionariosPage() {
   const [form, setForm] = useState({
     nome: '',
     cargo: '',
-    login: '',
-    senha: '',
   })
 
   async function loadFuncionarios() {
@@ -40,7 +38,7 @@ export function FuncionariosPage() {
 
   function resetForm() {
     setEditId(null)
-    setForm({ nome: '', cargo: '', login: '', senha: '' })
+    setForm({ nome: '', cargo: '' })
   }
 
   async function handleSubmit(event) {
@@ -54,8 +52,6 @@ export function FuncionariosPage() {
       const payload = {
         nome: form.nome.trim(),
         cargo: form.cargo.trim(),
-        login: form.login.trim(),
-        senha: form.senha,
       }
 
       if (editId) {
@@ -79,8 +75,6 @@ export function FuncionariosPage() {
     setForm({
       nome: item.nome,
       cargo: item.cargo,
-      login: item.login,
-      senha: item.senha || '',
     })
   }
 
@@ -131,28 +125,6 @@ export function FuncionariosPage() {
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
           />
 
-          <input
-            type="text"
-            value={form.login}
-            onChange={(event) => setForm((prev) => ({ ...prev, login: event.target.value }))}
-            placeholder="Login"
-            minLength={2}
-            maxLength={50}
-            required
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
-          />
-
-          <input
-            type="password"
-            value={form.senha}
-            onChange={(event) => setForm((prev) => ({ ...prev, senha: event.target.value }))}
-            placeholder="Senha"
-            minLength={8}
-            maxLength={100}
-            required
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
-          />
-
           <div className="flex gap-2">
             <button
               type="submit"
@@ -187,20 +159,19 @@ export function FuncionariosPage() {
               <th className="px-3 py-2">ID</th>
               <th className="px-3 py-2">Nome</th>
               <th className="px-3 py-2">Cargo</th>
-              <th className="px-3 py-2">Login</th>
               {canManage ? <th className="px-3 py-2">Acoes</th> : null}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td className="px-3 py-3 text-slate-500" colSpan={canManage ? 5 : 4}>
+                <td className="px-3 py-3 text-slate-500" colSpan={canManage ? 4 : 3}>
                   Carregando...
                 </td>
               </tr>
             ) : funcionarios.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-slate-500" colSpan={canManage ? 5 : 4}>
+                <td className="px-3 py-3 text-slate-500" colSpan={canManage ? 4 : 3}>
                   Nenhum funcionario encontrado.
                 </td>
               </tr>
@@ -210,7 +181,6 @@ export function FuncionariosPage() {
                   <td className="px-3 py-2">{item.id_funcionario}</td>
                   <td className="px-3 py-2">{item.nome}</td>
                   <td className="px-3 py-2">{item.cargo}</td>
-                  <td className="px-3 py-2">{item.login}</td>
                   {canManage ? (
                     <td className="px-3 py-2">
                       <div className="flex gap-2">
