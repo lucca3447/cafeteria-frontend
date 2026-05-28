@@ -1,16 +1,65 @@
-# React + Vite
+# FastCantina ☕
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**FastCantina** é um painel de gestão inteligente voltado para cantinas e cafeterias, oferecendo controle completo de vendas, estoque, produtos e um monitor de preparo em tempo real para a cozinha. 
 
-Currently, two official plugins are available:
+A interface moderna e amigável garante que as operações do dia a dia sejam registradas de forma rápida, evitando filas e otimizando a comunicação entre o balcão de vendas e o local de preparo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+##  Funcionalidades Principais
 
-## React Compiler
+- **Dashboard Interativo:** Gráficos de faturamento, ticket médio e resumo de vendas do dia em tempo real.
+- **Gestão de Pedidos:** Tela unificada para criação rápida de novos pedidos, vinculando funcionários e produtos. Baixa automática para produtos prontos.
+- **Monitor de Preparo (Cozinha):** Acompanhamento em tempo real dos pedidos que exigem preparo. Atualização automática a cada 10 segundos. Alertas visuais para pedidos atrasados.
+- **Controle de Produtos e Categorias:** Cadastro de produtos informando quais exigem preparo na cozinha.
+- **Gestão de Estoque:** Painel para monitorar as quantidades disponíveis dos itens vendidos.
+- **Administração de Funcionários e Fornecedores:** Telas de cadastro voltadas para o controle de permissões (Acesso Admin / Gerente) e gestão de fornecedores.
+- **Segurança e Perfis de Acesso:** Login seguro com JWT e proteção de rotas, permitindo que apenas administradores acessem configurações financeiras ou de funcionários.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 💻 Tecnologias Utilizadas
 
-## Expanding the ESLint configuration
+Este projeto frontend foi desenvolvido visando performance e facilidade de manutenção:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **[React 19](https://react.dev/)** - Biblioteca principal de interfaces.
+- **[Vite](https://vitejs.dev/)** - Bundler ultrarrápido para desenvolvimento.
+- **[Tailwind CSS v4](https://tailwindcss.com/)** - Framework utilitário de CSS com uso das  diretivas `@theme` para a identidade visual (Cores *FastCantina* ).
+- **[React Router Dom](https://reactrouter.com/)** - Gerenciamento e proteção das rotas da aplicação (`/dashboard`, `/cozinha`, etc).
+- **[Axios](https://axios-http.com/)** - Cliente HTTP para comunicação com a API Backend e renovação automática de tokens (refresh token).
+- **[Recharts](https://recharts.org/)** - Renderização de gráficos responsivos no Dashboard.
+- **[Lucide React](https://lucide.dev/)** - Ícones limpos e modernos utilizados em todo o painel.
+
+## 🎨 Identidade Visual (Design System)
+
+O sistema conta com tipografias do Google Fonts (**Playfair Display** para títulos e **Inter** para a interface) combinadas com uma paleta de cores super requintada e moderna:
+- **Preto Suave (`#1F1F1F`)** e tons derivados aplicados fortemente no layout geral.
+- **Marrom Café (`#4B2E2B`)** para botões e links de maior impacto.
+- **Caramelo (`#C68B59`)** como cor de destaque nos gráficos.
+- **Creme (`#FFF8F0`)** para o fundo principal da aplicação.
+
+## ⚙️ Como Executar o Projeto Localmente
+
+### 1. Pré-requisitos
+- Node.js.
+- Instância do Backend  rodando (API).
+
+### 2. Configurando o Ambiente
+Clone o repositório, navegue até a pasta do projeto e instale as dependências:
+
+```bash
+cd cafeteriafrontend
+npm install
+```
+
+### 3. Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do frontend e defina a URL da sua API:
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+### 4. Rodando em Desenvolvimento
+Inicie o servidor de desenvolvimento do Vite:
+```bash
+npm run dev
+```
+
+Abra [http://localhost:5173](http://localhost:5173) no seu navegador. O HMR (Hot Module Replacement) atualizará o código em tempo real.
+
+---
