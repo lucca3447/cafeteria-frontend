@@ -165,6 +165,20 @@ export function PedidosPage() {
         ),
       )
 
+      // Se nenhum item exige preparo, já marcamos o pedido como pronto/concluído
+      const precisaPreparo = itensRascunho.some(item => {
+        const produto = produtosMap.get(item.id_produto)
+        return produto?.exige_preparo === true
+      })
+
+      if (!precisaPreparo) {
+        try {
+          await api.patch(`/pedidos/${idNotaFiscal}/status`, { status: 'pronto' })
+        } catch (e) {
+          // Ignorar falha no patch de status
+        }
+      }
+
       limparFormularioPedido()
       await loadData()
     } catch (requestError) {
@@ -193,6 +207,15 @@ export function PedidosPage() {
       await loadData()
     } catch (requestError) {
       setError(requestError.response?.data?.detail || 'Erro ao excluir pedido.')
+    }
+  }
+
+  async function handleConcluir(idNotaFiscal) {
+    try {
+      await api.patch(`/pedidos/${idNotaFiscal}/status`, { status: 'pronto' })
+      await loadData()
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Erro ao concluir pedido.')
     }
   }
 
@@ -421,6 +444,15 @@ export function PedidosPage() {
                           >
                             {isExpanded ? 'Ocultar itens' : 'Ver itens'}
                           </button>
+                          {pedido.status === 'pendente' && (
+                            <button
+                              type="button"
+                              onClick={() => handleConcluir(pedido.id_nota_fiscal)}
+                              className="rounded-md border border-emerald-300 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50"
+                            >
+                              Concluir
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleDelete(pedido.id_nota_fiscal)}
