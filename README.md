@@ -20,19 +20,12 @@ Este projeto frontend foi desenvolvido visando performance e facilidade de manut
 
 - **[React 19](https://react.dev/)** - Biblioteca principal de interfaces.
 - **[Vite](https://vitejs.dev/)** - Bundler ultrarrápido para desenvolvimento.
-- **[Tailwind CSS v4](https://tailwindcss.com/)** - Framework utilitário de CSS com uso das  diretivas `@theme` para a identidade visual (Cores *FastCantina* ).
+- **[Tailwind CSS v4](https://tailwindcss.com/)** - Framework utilitário de CSS com uso das  diretivas `@theme` para a identidade visual
 - **[React Router Dom](https://reactrouter.com/)** - Gerenciamento e proteção das rotas da aplicação (`/dashboard`, `/cozinha`, etc).
 - **[Axios](https://axios-http.com/)** - Cliente HTTP para comunicação com a API Backend e renovação automática de tokens (refresh token).
 - **[Recharts](https://recharts.org/)** - Renderização de gráficos responsivos no Dashboard.
 - **[Lucide React](https://lucide.dev/)** - Ícones limpos e modernos utilizados em todo o painel.
 
-## 🎨 Identidade Visual (Design System)
-
-O sistema conta com tipografias do Google Fonts (**Playfair Display** para títulos e **Inter** para a interface) combinadas com uma paleta de cores super requintada e moderna:
-- **Preto Suave (`#1F1F1F`)** e tons derivados aplicados fortemente no layout geral.
-- **Marrom Café (`#4B2E2B`)** para botões e links de maior impacto.
-- **Caramelo (`#C68B59`)** como cor de destaque nos gráficos.
-- **Creme (`#FFF8F0`)** para o fundo principal da aplicação.
 
 ## ⚙️ Como Executar o Projeto Localmente
 
