@@ -1,19 +1,21 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
   
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
-  --color-brand-950: #1e1b4b;
+  /* Brand Palette */
+  --color-brand-50: #FFF8F0; /* Creme */
+  --color-brand-100: #f5e6d3;
+  --color-brand-200: #eacbaf;
+  --color-brand-300: #deb08c;
+  --color-brand-400: #C68B59; /* Caramelo */
+  --color-brand-500: #4B2E2B; /* Marrom café */
+  --color-brand-600: #3c2522;
+  --color-brand-700: #2d1c1a;
+  --color-brand-800: #1e1211;
+  --color-brand-900: #1F1F1F; /* Preto suave */
+  --color-brand-950: #0f0f0f;
 }
 
 * {
@@ -29,10 +31,14 @@ body,
 
 body {
   font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--color-brand-50);
+  color: var(--color-brand-900);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-serif);
 }
 
 /* Custom Scrollbar */
