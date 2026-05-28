@@ -17,39 +17,53 @@ const BRL = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 })
 
+// Retorna a data local no formato YYYY-MM-DD (sem conversão UTC)
+function toLocalDateStr(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export function DashboardPage() {
   const { user } = useAuth()
   const [pedidos, setPedidos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState(null)
+
+  async function fetchPedidos() {
+    try {
+      const response = await api.get('/pedidos/')
+      setPedidos(response.data)
+      setLastUpdate(new Date())
+    } catch (error) {
+      console.error('Erro ao buscar pedidos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function fetchPedidos() {
-      try {
-        const response = await api.get('/pedidos/')
-        setPedidos(response.data)
-      } catch (error) {
-        console.error('Erro ao buscar pedidos:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchPedidos()
+    // Atualiza automaticamente a cada 30 segundos
+    const interval = setInterval(fetchPedidos, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   // Calculate metrics
   const { vendasHoje, pedidosHoje, ticketMedioHoje, chartData, ultimosPedidos } = useMemo(() => {
     const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
+    const hojeStr = toLocalDateStr(hoje) // 'YYYY-MM-DD' no fuso local
 
     let vendasHojeCalc = 0
     let pedidosHojeCalc = 0
 
-    // For the chart: last 7 days
+    // Últimos 7 dias usando data LOCAL (sem UTC)
     const last7Days = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(hoje)
       d.setDate(d.getDate() - (6 - i))
       return {
-        dateStr: d.toISOString().split('T')[0],
+        dateStr: toLocalDateStr(d),
         displayDate: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         total: 0,
       }
@@ -59,11 +73,11 @@ export function DashboardPage() {
 
     pedidos.forEach((pedido) => {
       const pedidoData = new Date(pedido.data_hora)
-      const dateStr = pedidoData.toISOString().split('T')[0]
+      const dateStr = toLocalDateStr(pedidoData) // usa data LOCAL do pedido
       const valor = Number(pedido.valor_total)
 
-      // Se for hoje
-      if (pedidoData >= hoje) {
+      // Compara strings de data local (sem UTC)
+      if (dateStr === hojeStr) {
         vendasHojeCalc += valor
         pedidosHojeCalc += 1
       }
@@ -100,11 +114,27 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-        <p className="text-slate-500">
-          Bem-vindo, <span className="font-semibold text-slate-700">{user?.nome}</span>. Aqui está o resumo das vendas.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="text-slate-500">
+            Bem-vindo, <span className="font-semibold text-slate-700">{user?.nome}</span>. Aqui está o resumo das vendas.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {lastUpdate && (
+            <span className="text-xs text-slate-400">
+              Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+          <button
+            onClick={fetchPedidos}
+            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <Activity className="h-3.5 w-3.5" />
+            Atualizar
+          </button>
+        </div>
       </div>
 
       {/* Stat Cards */}
