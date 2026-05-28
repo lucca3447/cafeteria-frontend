@@ -178,7 +178,7 @@ export function DashboardPage() {
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   formatter={(value) => [BRL.format(value), 'Faturamento']}
                 />
-                <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                <Bar dataKey="total" fill="#C68B59" radius={[4, 4, 0, 0]} maxBarSize={50} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -201,7 +201,9 @@ export function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-emerald-600">{BRL.format(Number(pedido.valor_total))}</p>
-                    <span className="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 uppercase">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium uppercase mt-1 ${
+                      pedido.status?.toLowerCase() === 'pendente' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                    }`}>
                       {pedido.status || 'concluído'}
                     </span>
                   </div>

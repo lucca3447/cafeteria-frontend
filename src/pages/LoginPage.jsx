@@ -35,15 +35,15 @@ export function LoginPage() {
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-brand-600/20 blur-3xl"></div>
         <div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl"></div>
 
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-            <Coffee className="h-7 w-7 text-white" />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="flex shrink-0 items-center justify-center">
+            <img src="/logo.png" alt="FastCantina Logo" className="h-24 w-auto object-contain drop-shadow-lg" />
           </div>
-          <span className="text-2xl font-bold tracking-tight">Cafeteria Maneger</span>
+          <span className="text-4xl font-bold tracking-tight font-serif">FastCantina</span>
         </div>
 
         <div className="relative z-10 max-w-md">
-          <h1 className="text-4xl font-bold leading-tight mb-6">
+          <h1 className="text-4xl font-bold leading-tight mb-6 font-serif">
             Gestão inteligente para sua cantina.
           </h1>
           <p className="text-brand-100 text-lg leading-relaxed">
@@ -52,7 +52,7 @@ export function LoginPage() {
         </div>
 
         <div className="relative z-10 text-sm text-brand-200">
-          &copy; {new Date().getFullYear()} Cafeteria Menager. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} FastCantina. Todos os direitos reservados.
         </div>
       </div>
 
@@ -60,9 +60,9 @@ export function LoginPage() {
       <div className="flex w-full flex-col justify-center px-8 sm:px-16 lg:w-1/2 lg:px-24 xl:px-32 relative">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-10 text-center lg:text-left">
-            <div className="lg:hidden flex justify-center mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/30">
-                <Coffee className="h-7 w-7" />
+            <div className="lg:hidden flex justify-center mb-8">
+              <div className="flex shrink-0 items-center justify-center">
+                <img src="/logo.png" alt="FastCantina Logo" className="h-24 w-auto object-contain drop-shadow-md" />
               </div>
             </div>
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Bem-vindo de volta</h2>

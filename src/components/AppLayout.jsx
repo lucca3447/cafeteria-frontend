@@ -18,13 +18,13 @@ function navClassName({ isActive }) {
   const base =
     'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all group'
   return isActive 
-    ? `${base} bg-brand-50 text-brand-700` 
-    : `${base} text-slate-600 hover:bg-slate-100 hover:text-slate-900`
+    ? `${base} bg-brand-800 text-brand-400 shadow-sm` 
+    : `${base} text-brand-200 hover:bg-brand-800/50 hover:text-brand-50`
 }
 
 function iconClassName({ isActive }) {
   const base = 'h-5 w-5 transition-colors'
-  return isActive ? `${base} text-brand-600` : `${base} text-slate-400 group-hover:text-slate-600`
+  return isActive ? `${base} text-brand-400` : `${base} text-brand-400/70 group-hover:text-brand-300`
 }
 
 export function AppLayout() {
@@ -39,22 +39,22 @@ export function AppLayout() {
   const canManage = hasAnyRole(['admin', 'gerente'])
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen bg-brand-50 text-brand-900">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-64 border-r border-slate-200 bg-white shadow-sm flex flex-col z-10">
-        <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-md shadow-brand-500/20">
-            <Coffee className="h-6 w-6" />
+      <aside className="fixed inset-y-0 left-0 w-64 border-r border-brand-950 bg-brand-900 shadow-xl flex flex-col z-10">
+        <div className="flex items-center gap-3 px-6 py-6 border-b border-brand-800/50">
+          <div className="flex shrink-0 items-center justify-center">
+            <img src="/logo.png" alt="FastCantina Logo" className="h-16 w-auto object-contain drop-shadow-md" />
           </div>
           <div>
-            <p className="text-base font-bold leading-tight">Delícias da Cidade</p>
-            <p className="text-xs font-medium text-slate-500">Painel de Gestão</p>
+            <p className="text-xl font-bold leading-tight font-serif text-brand-50">FastCantina</p>
+            <p className="text-xs font-medium text-brand-300">Gestão Inteligente</p>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <div className="space-y-1">
-            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Menu Principal</p>
+            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-brand-400/70 mb-2">Menu Principal</p>
             <NavLink to="/dashboard" className={navClassName}>
               {({ isActive }) => <><LayoutDashboard className={iconClassName({ isActive })} /> Dashboard</>}
             </NavLink>
@@ -74,7 +74,7 @@ export function AppLayout() {
 
           {canManage && (
             <div className="mt-8 space-y-1">
-              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Administração</p>
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-brand-400/70 mb-2">Administração</p>
               <NavLink to="/usuarios" className={navClassName}>
                 {({ isActive }) => <><Users className={iconClassName({ isActive })} /> Usuários</>}
               </NavLink>
@@ -94,21 +94,21 @@ export function AppLayout() {
           )}
         </div>
 
-        <div className="border-t border-slate-100 p-4">
-          <div className="rounded-xl bg-slate-50 p-4 border border-slate-200/60">
+        <div className="border-t border-brand-800/50 p-4">
+          <div className="rounded-xl bg-brand-950 p-4 border border-brand-800">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-slate-600 font-bold text-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-800 text-brand-100 font-bold text-sm">
                 {user?.nome?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 truncate">
-                <p className="truncate text-sm font-semibold text-slate-900">{user?.nome}</p>
-                <p className="truncate text-xs font-medium text-slate-500 capitalize">{user?.perfil}</p>
+                <p className="truncate text-sm font-semibold text-brand-50">{user?.nome}</p>
+                <p className="truncate text-xs font-medium text-brand-400 capitalize">{user?.perfil}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleLogout}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:border-red-200 hover:text-red-700"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-900 border border-brand-800 px-3 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-950 hover:border-red-900 hover:text-red-300"
             >
               <LogOut className="h-4 w-4" />
               Sair da conta
