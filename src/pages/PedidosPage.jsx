@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../services/api'
 
 const BRL = new Intl.NumberFormat('pt-BR', {
@@ -165,6 +165,20 @@ export function PedidosPage() {
         ),
       )
 
+      // Se nenhum item exige preparo, já marcamos o pedido como pronto/concluído
+      const precisaPreparo = itensRascunho.some(item => {
+        const produto = produtosMap.get(item.id_produto)
+        return produto?.exige_preparo === true
+      })
+
+      if (!precisaPreparo) {
+        try {
+          await api.patch(`/pedidos/${idNotaFiscal}/status`, { status: 'pronto' })
+        } catch (e) {
+          // Ignorar falha no patch de status
+        }
+      }
+
       limparFormularioPedido()
       await loadData()
     } catch (requestError) {
@@ -193,6 +207,15 @@ export function PedidosPage() {
       await loadData()
     } catch (requestError) {
       setError(requestError.response?.data?.detail || 'Erro ao excluir pedido.')
+    }
+  }
+
+  async function handleConcluir(idNotaFiscal) {
+    try {
+      await api.patch(`/pedidos/${idNotaFiscal}/status`, { status: 'pronto' })
+      await loadData()
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Erro ao concluir pedido.')
     }
   }
 
@@ -281,7 +304,6 @@ export function PedidosPage() {
             value={itemForm.id_produto}
             onChange={(event) => setItemForm((prev) => ({ ...prev, id_produto: event.target.value }))}
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
-            required
           >
             <option value="">Produto</option>
             {produtos.map((produto) => (
@@ -298,7 +320,6 @@ export function PedidosPage() {
             value={itemForm.quantidade}
             onChange={(event) => setItemForm((prev) => ({ ...prev, quantidade: event.target.value }))}
             placeholder="Quantidade"
-            required
             className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
           />
 
@@ -423,6 +444,15 @@ export function PedidosPage() {
                           >
                             {isExpanded ? 'Ocultar itens' : 'Ver itens'}
                           </button>
+                          {pedido.status === 'pendente' && (
+                            <button
+                              type="button"
+                              onClick={() => handleConcluir(pedido.id_nota_fiscal)}
+                              className="rounded-md border border-emerald-300 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50"
+                            >
+                              Concluir
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleDelete(pedido.id_nota_fiscal)}

@@ -20,6 +20,7 @@ export function ProdutosPage() {
     nome: '',
     preco: '',
     id_categoria: '',
+    exige_preparo: false,
   })
 
   const categoriasMap = useMemo(() => {
@@ -66,6 +67,7 @@ export function ProdutosPage() {
         nome: form.nome.trim(),
         preco: Number(form.preco),
         id_categoria: Number(form.id_categoria),
+        exige_preparo: form.exige_preparo,
       }
 
       if (editId) {
@@ -75,7 +77,7 @@ export function ProdutosPage() {
       }
 
       setEditId(null)
-      setForm({ nome: '', preco: '', id_categoria: '' })
+      setForm({ nome: '', preco: '', id_categoria: '', exige_preparo: false })
       await loadData()
     } catch (requestError) {
       setError(requestError.response?.data?.detail || 'Erro ao salvar produto.')
@@ -90,12 +92,13 @@ export function ProdutosPage() {
       nome: item.nome,
       preco: String(item.preco),
       id_categoria: String(item.id_categoria),
+      exige_preparo: Boolean(item.exige_preparo),
     })
   }
 
   function cancelEdit() {
     setEditId(null)
-    setForm({ nome: '', preco: '', id_categoria: '' })
+    setForm({ nome: '', preco: '', id_categoria: '', exige_preparo: false })
   }
 
   async function handleDelete(idProduto) {
@@ -126,7 +129,7 @@ export function ProdutosPage() {
       {canEdit ? (
         <form
           onSubmit={handleSubmit}
-          className="grid gap-3 md:grid-cols-[1fr_180px_220px_auto_auto]"
+          className="flex flex-wrap items-center gap-3"
         >
           <input
             type="text"
@@ -136,7 +139,7 @@ export function ProdutosPage() {
             minLength={2}
             maxLength={100}
             required
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
+            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2 flex-1 min-w-50"
           />
 
           <input
@@ -147,7 +150,7 @@ export function ProdutosPage() {
             onChange={(event) => setForm((prev) => ({ ...prev, preco: event.target.value }))}
             placeholder="Preco"
             required
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
+            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2 w-32"
           />
 
           <select
@@ -156,7 +159,7 @@ export function ProdutosPage() {
               setForm((prev) => ({ ...prev, id_categoria: event.target.value }))
             }
             required
-            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2"
+            className="rounded-lg border border-slate-300 px-3 py-2 outline-none ring-slate-900 focus:ring-2 w-48"
           >
             <option value="">Selecione a categoria</option>
             {categorias.map((categoria) => (
@@ -165,6 +168,16 @@ export function ProdutosPage() {
               </option>
             ))}
           </select>
+
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mx-2">
+            <input
+              type="checkbox"
+              checked={form.exige_preparo}
+              onChange={(event) => setForm((prev) => ({ ...prev, exige_preparo: event.target.checked }))}
+              className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-600"
+            />
+            Exige Preparo?
+          </label>
 
           <button
             type="submit"
@@ -200,19 +213,20 @@ export function ProdutosPage() {
               <th className="px-3 py-2">Nome</th>
               <th className="px-3 py-2">Preco</th>
               <th className="px-3 py-2">Categoria</th>
+              <th className="px-3 py-2">Preparo?</th>
               {canEdit ? <th className="px-3 py-2">Acoes</th> : null}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td className="px-3 py-3 text-slate-500" colSpan={canEdit ? 5 : 4}>
+                <td className="px-3 py-3 text-slate-500" colSpan={canEdit ? 6 : 5}>
                   Carregando...
                 </td>
               </tr>
             ) : produtos.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-slate-500" colSpan={canEdit ? 5 : 4}>
+                <td className="px-3 py-3 text-slate-500" colSpan={canEdit ? 6 : 5}>
                   Nenhum produto encontrado.
                 </td>
               </tr>
@@ -224,6 +238,13 @@ export function ProdutosPage() {
                   <td className="px-3 py-2">{BRL.format(Number(item.preco))}</td>
                   <td className="px-3 py-2">
                     {categoriasMap.get(item.id_categoria) || `ID ${item.id_categoria}`}
+                  </td>
+                  <td className="px-3 py-2 text-xs font-semibold">
+                    {item.exige_preparo ? (
+                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md">Sim</span>
+                    ) : (
+                      <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md">Não</span>
+                    )}
                   </td>
                   {canEdit ? (
                     <td className="px-3 py-2">

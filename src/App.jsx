@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/AuthContext.jsx'
 import { AppLayout } from './components/AppLayout.jsx'
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx'
@@ -9,9 +9,11 @@ import { FornecedorProdutoPage } from './pages/FornecedorProdutoPage.jsx'
 import { FornecedoresPage } from './pages/FornecedoresPage.jsx'
 import { FuncionariosPage } from './pages/FuncionariosPage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
+import { NaoAutorizadoPage } from './pages/NaoAutorizadoPage.jsx'
 import { PedidosPage } from './pages/PedidosPage.jsx'
 import { ProdutosPage } from './pages/ProdutosPage.jsx'
 import { UsuariosPage } from './pages/UsuariosPage.jsx'
+import { CozinhaPage } from './pages/CozinhaPage.jsx'
 
 function LoginRoute() {
   const { isAuthenticated, loading } = useAuth()
@@ -39,6 +41,10 @@ export default function App() {
           <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="/produtos" element={<ProdutosPage />} />
           <Route path="/pedidos" element={<PedidosPage />} />
+          <Route path="/nao-autorizado" element={<NaoAutorizadoPage />} />
+          
+          {/* Rota da Cozinha (Monitor de Preparo) */}
+          <Route path="/cozinha" element={<CozinhaPage />} />
 
           <Route element={<ProtectedRoute roles={['admin', 'gerente']} />}>
             <Route path="/usuarios" element={<UsuariosPage />} />
